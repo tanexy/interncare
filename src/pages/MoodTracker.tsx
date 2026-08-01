@@ -52,65 +52,74 @@ const MoodTracker: React.FC = () => {
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in pb-16">
 
-      {/* Dynamic Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Wellness Journal</h1>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            Keep tabs on mental focus, physical energy parameters, and stress loads
+      {/* Narrative Header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <SmilePlus size={14} className="text-stone-400" />
+            <span className="text-[10px] font-mono tracking-widest text-stone-400 dark:text-zinc-500 uppercase">
+              Mind & body log
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-light tracking-tight text-stone-900 dark:text-white font-serif">
+            Wellness Journal
+          </h1>
+          <p className="text-xs text-stone-400 dark:text-zinc-400 font-light">
+            Keep tabs on mental focus, physical energy parameters, and stress loads in an elegant, private ledger.
           </p>
         </div>
+
         <div className="flex gap-2">
           <button 
             onClick={() => setShowMoodForm(true)}
-            className="btn btn-primary text-xs font-semibold"
+            className="btn-premium btn-premium-primary"
           >
             Log Mind State
           </button>
           <button 
             onClick={() => setShowHealthForm(true)}
-            className="btn btn-secondary text-xs font-semibold"
+            className="btn-premium btn-premium-secondary"
           >
             Log Health Data
           </button>
         </div>
       </div>
-      
+
+      <div className="divider-premium" />
+
       {/* Symmetrical tab navigation bar */}
-      <div className="border-b border-slate-100 dark:border-slate-800/80">
-        <div className="flex space-x-6">
-          <button
-            onClick={() => setActiveTab('mood')}
-            className={`py-3 px-1 border-b-2 font-bold text-xs uppercase tracking-wider transition-all duration-200 ${
-              activeTab === 'mood'
-                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            🧠 Mindfulness Journal
-          </button>
-          <button
-            onClick={() => setActiveTab('health')}
-            className={`py-3 px-1 border-b-2 font-bold text-xs uppercase tracking-wider transition-all duration-200 ${
-              activeTab === 'health'
-                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            🛌 Physical Health Metrics
-          </button>
-        </div>
+      <div className="flex space-x-6 border-b border-stone-100 dark:border-neutral-800/60">
+        <button
+          onClick={() => setActiveTab('mood')}
+          className={`py-3 px-1 border-b text-[10px] font-bold uppercase tracking-widest transition-all duration-200 ${
+            activeTab === 'mood'
+              ? 'border-stone-900 dark:border-white text-stone-900 dark:text-white'
+              : 'border-transparent text-stone-400 dark:text-zinc-500 hover:text-stone-750'
+          }`}
+        >
+          Mindfulness Journal
+        </button>
+        <button
+          onClick={() => setActiveTab('health')}
+          className={`py-3 px-1 border-b text-[10px] font-bold uppercase tracking-widest transition-all duration-200 ${
+            activeTab === 'health'
+              ? 'border-stone-900 dark:border-white text-stone-900 dark:text-white'
+              : 'border-transparent text-stone-400 dark:text-zinc-500 hover:text-stone-750'
+          }`}
+        >
+          Physical Health Metrics
+        </button>
       </div>
       
       {/* Mood Tab Timeline */}
       {activeTab === 'mood' && (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8 animate-fade-in pl-1">
           {moodDates.length > 0 ? (
             moodDates.map(date => (
-              <div key={date} className="space-y-3.5">
-                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">
+              <div key={date} className="timeline-node">
+                <h3 className="text-[10px] font-bold text-stone-400 dark:text-zinc-500 uppercase tracking-wider mb-3">
                   {formatDateHeading(date)}
                 </h3>
                 <div className="space-y-4">
@@ -138,11 +147,11 @@ const MoodTracker: React.FC = () => {
       
       {/* Health Tab Timeline */}
       {activeTab === 'health' && (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8 animate-fade-in pl-1">
           {healthDates.length > 0 ? (
             healthDates.map(date => (
-              <div key={date} className="space-y-3.5">
-                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">
+              <div key={date} className="timeline-node">
+                <h3 className="text-[10px] font-bold text-stone-400 dark:text-zinc-500 uppercase tracking-wider mb-3">
                   {formatDateHeading(date)}
                 </h3>
                 <div className="space-y-4">
