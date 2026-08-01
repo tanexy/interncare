@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -11,10 +11,16 @@ import {
   Wifi,
   WifiOff,
   Users,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Bell,
   Sparkles,
-  Heart
+  Heart,
+  Briefcase
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import CommandPalette from './CommandPalette';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,25 +34,43 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setConnectionStatus,
     teamMembers
   } = useApp();
+
   const navigate = useNavigate();
   const location = useLocation();
-  
+
+  // Navigation states
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [activeWorkspace, setActiveWorkspace] = useState('InternCare Personal');
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
+
   const navItems = [
-    { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/' },
-    { name: 'Tasks', icon: <CheckSquare size={20} />, path: '/tasks' },
-    { name: 'Wellness Tracker', icon: <SmilePlus size={20} />, path: '/mood' },
-    { name: 'Analytics', icon: <BarChart3 size={20} />, path: '/analytics' },
-    { name: 'Settings', icon: <Settings size={20} />, path: '/settings' },
+    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/' },
+    { name: 'Tasks', icon: <CheckSquare size={18} />, path: '/tasks' },
+    { name: 'Wellness Tracker', icon: <SmilePlus size={18} />, path: '/mood' },
+    { name: 'Analytics', icon: <BarChart3 size={18} />, path: '/analytics' },
+    { name: 'Settings', icon: <Settings size={18} />, path: '/settings' },
   ];
 
-  // Helper to toggle simulated connection status for delightful interactive testing
+  // Global keyboard shortcut listener for ⌘K or Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleConnectionToggle = () => {
     if (connectionStatus === 'connected') {
       setConnectionStatus('reconnecting');
-      setTimeout(() => setConnectionStatus('offline'), 1500);
+      setTimeout(() => setConnectionStatus('offline'), 1200);
     } else if (connectionStatus === 'offline') {
       setConnectionStatus('reconnecting');
-      setTimeout(() => setConnectionStatus('connected'), 1500);
+      setTimeout(() => setConnectionStatus('connected'), 1200);
     } else {
       setConnectionStatus('connected');
     }
@@ -55,189 +79,257 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const activeMembers = teamMembers.filter(m => m.status === 'online' || m.status === 'busy' || m.status === 'away');
 
   return (
-    <div className={`min-h-screen font-sans antialiased transition-colors duration-300 ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-800'}`}>
+    <div className={`min-h-screen font-sans antialiased transition-colors duration-300 ${isDarkMode ? 'dark bg-[#0a0a0a] text-zinc-100' : 'bg-[#faf9f6] text-stone-800'}`}>
 
-      {/* Top Header - Visible on all viewports for branding, quick stats, dark mode toggle */}
-      <header className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 py-3 bg-white/70 dark:bg-slate-900/70 border-b border-slate-100 dark:border-slate-900/60 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          {/* Symmetrical glowing tech-health logo */}
-          <div className="relative group cursor-pointer" onClick={() => navigate('/')}>
-            <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-teal-500 to-indigo-500 opacity-70 blur-sm group-hover:opacity-100 transition duration-300"></div>
-            <div className="relative w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center">
-              <Heart size={16} className="text-teal-400 fill-teal-400 animate-pulse-light" />
+      {/* ⌘K Command Palette Overlay */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+      />
+
+      {/* Floating Glass Sidebar (Desktop / Tablet view) */}
+      <aside
+        className={`hidden lg:flex flex-col fixed top-3 bottom-3 left-3 z-30 rounded-2xl border border-stone-200/50 dark:border-neutral-800/80 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-md transition-all duration-300 shadow-sm
+          ${isSidebarCollapsed ? 'w-20' : 'w-64'}
+        `}
+      >
+        {/* Workspace Switcher Header */}
+        <div className="p-4 border-b border-stone-100 dark:border-neutral-800/60 relative">
+          <div
+            onClick={() => setShowWorkspaceMenu(!showWorkspaceMenu)}
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-neutral-850 cursor-pointer select-none transition-colors"
+          >
+            <div className="w-7 h-7 rounded-md bg-stone-900 dark:bg-neutral-800 flex items-center justify-center text-white font-serif">
+              <Briefcase size={14} className="text-stone-300" />
             </div>
+            {!isSidebarCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold text-stone-400 dark:text-zinc-500 uppercase tracking-widest leading-none">Workspace</p>
+                <p className="text-xs font-semibold text-stone-800 dark:text-zinc-200 truncate mt-1">{activeWorkspace}</p>
+              </div>
+            )}
           </div>
-          <div>
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-slate-900 via-teal-700 to-indigo-800 dark:from-white dark:via-teal-400 dark:to-indigo-300 bg-clip-text text-transparent">
-              InternCare
-            </span>
-            <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold uppercase tracking-widest bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 px-1.5 py-0.5 rounded border border-teal-200/20">
-              v1.1 Premium
-            </span>
-          </div>
+
+          {/* Collapsible Dropdown for workspace switcher */}
+          {showWorkspaceMenu && !isSidebarCollapsed && (
+            <div className="absolute left-4 right-4 top-full mt-1.5 bg-white dark:bg-neutral-900 border border-stone-200/60 dark:border-neutral-800 rounded-xl shadow-xl p-1.5 z-40 animate-fade-in-slide">
+              <button
+                onClick={() => { setActiveWorkspace('InternCare Personal'); setShowWorkspaceMenu(false); }}
+                className="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-neutral-850 text-stone-700 dark:text-zinc-300 font-medium"
+              >
+                InternCare Personal
+              </button>
+              <button
+                onClick={() => { setActiveWorkspace('Supervisor Sandbox'); setShowWorkspaceMenu(false); }}
+                className="w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-neutral-850 text-stone-700 dark:text-zinc-300 font-medium"
+              >
+                Supervisor Sandbox
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Real-time Collaboration & Connection Hub */}
-        <div className="flex items-center gap-4">
+        {/* Search Command Trigger (Linear style) */}
+        <div className="px-4 py-3">
+          <button
+            onClick={() => setIsCommandPaletteOpen(true)}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-stone-100/50 dark:bg-neutral-800/40 text-stone-400 dark:text-zinc-500 hover:bg-stone-100 dark:hover:bg-neutral-800/80 transition-all text-xs border border-transparent hover:border-stone-200/50 dark:hover:border-zinc-700/50"
+          >
+            <span className="flex items-center gap-2">
+              <Search size={14} />
+              {!isSidebarCollapsed && <span>Search Workspace...</span>}
+            </span>
+            {!isSidebarCollapsed && <span className="kdb-premium">⌘K</span>}
+          </button>
+        </div>
 
-          {/* Desktop/Tablet Presence indicators */}
-          <div className="hidden md:flex items-center gap-2 border-r border-slate-100 dark:border-slate-800/80 pr-4">
-            <div className="flex -space-x-1.5 overflow-hidden">
-              {activeMembers.slice(0, 4).map((member) => (
-                <div
-                  key={member.id}
-                  className="relative group cursor-pointer"
-                  title={`${member.name} (${member.role}) - ${member.currentActivity || 'Active'}`}
-                >
-                  <img
-                    className="inline-block h-7 w-7 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                    src={member.avatarUrl}
-                    alt={member.name}
-                  />
-                  <span className={`absolute bottom-0 right-0 block h-2 w-2 rounded-full ring-1 ring-white dark:ring-slate-900
-                    ${member.status === 'online' ? 'bg-emerald-500' : member.status === 'busy' ? 'bg-rose-500' : 'bg-amber-500'}
-                  `} />
+        {/* Navigation Items list */}
+        <div className="flex-1 px-3 py-2 overflow-y-auto space-y-1">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.name}
+                onClick={() => navigate(item.path)}
+                className={`
+                  w-full flex items-center rounded-xl p-2.5 text-xs font-medium transition-all duration-200 group relative
+                  ${isActive
+                    ? 'bg-stone-100/80 dark:bg-neutral-800/70 text-stone-900 dark:text-white font-semibold'
+                    : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100/30 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-neutral-850/40'}
+                `}
+                title={item.name}
+              >
+                <span className={`mr-3 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-stone-900 dark:text-white' : 'text-stone-400'}`}>
+                  {item.icon}
+                </span>
+                {!isSidebarCollapsed && (
+                  <span className="truncate">{item.name}</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-                  {/* Custom tooltip hover card */}
-                  <div className="absolute bottom-full right-0 mb-2 w-48 scale-0 group-hover:scale-100 transition-all origin-bottom duration-200 z-50 bg-slate-900 text-white text-xs p-2.5 rounded-lg shadow-xl border border-slate-800">
-                    <p className="font-semibold">{member.name}</p>
-                    <p className="text-[10px] text-teal-400 font-medium">{member.role}</p>
-                    {member.currentActivity && (
-                      <p className="text-[10px] text-slate-300 mt-1 italic border-t border-slate-800 pt-1">
-                        ⚡ {member.currentActivity}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
+        {/* Collapsible toggle trigger block */}
+        <div className="p-4 border-t border-stone-100 dark:border-neutral-800/60 flex items-center justify-between">
+          {!isSidebarCollapsed && (
+            <div className="flex items-center gap-2">
+              <Sparkles size={14} className="text-stone-400" />
+              <span className="text-[10px] font-semibold text-stone-400 dark:text-zinc-500 uppercase tracking-widest">Workspace Actions</span>
             </div>
-            {activeMembers.length > 4 && (
-              <span className="text-xs font-semibold text-slate-500 ml-1">
-                +{activeMembers.length - 4}
+          )}
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="p-1.5 rounded-md bg-stone-50 dark:bg-neutral-850 border border-stone-200/30 text-stone-500 dark:text-zinc-400 hover:bg-stone-100 dark:hover:bg-neutral-800 transition-colors mx-auto lg:mx-0"
+          >
+            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+        </div>
+
+        {/* Profile / Bottom Area */}
+        <div className="p-4 border-t border-stone-100 dark:border-neutral-800/60">
+          <div className="flex items-center gap-2.5">
+            <div className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                alt="Your Avatar"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-stone-100 dark:ring-neutral-800"
+              />
+              <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-neutral-900" />
+            </div>
+
+            {!isSidebarCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-stone-800 dark:text-zinc-200 truncate">Clive (You)</p>
+                <p className="text-[10px] text-stone-400 dark:text-zinc-500 font-medium">UX/UI Design Intern</p>
+              </div>
+            )}
+
+            {!isSidebarCollapsed && (
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-stone-400 opacity-70"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-stone-500"></span>
               </span>
             )}
-            <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1 ml-1 font-medium">
-              <Users size={12} /> Live
+          </div>
+        </div>
+      </aside>
+
+      {/* Main viewport area, handles sliding margins based on sidebar collapsed state */}
+      <div className={`transition-all duration-300 flex flex-col min-h-screen
+        ${isSidebarCollapsed ? 'lg:pl-28' : 'lg:pl-72'}
+      `}>
+
+        {/* Sleek Header Bar */}
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between px-6 md:px-10 bg-transparent">
+
+          {/* Logo element for mobile views (hidden on desktop) */}
+          <div className="flex items-center gap-2.5 lg:hidden">
+            <div className="w-7 h-7 rounded-md bg-stone-900 dark:bg-neutral-800 flex items-center justify-center">
+              <Heart size={14} className="text-white fill-white" />
+            </div>
+            <span className="text-sm font-bold tracking-tight text-stone-900 dark:text-white font-serif">
+              InternCare
             </span>
           </div>
 
-          {/* Interactive Supabase Realtime Status Button */}
-          <button
-            onClick={handleConnectionToggle}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-300 active:scale-95 border
-              ${connectionStatus === 'connected'
-                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                : connectionStatus === 'reconnecting'
-                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 animate-pulse'
-                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
-              }
-            `}
-            title="Supabase PostgreSQL Realtime Status. Click to simulate status change."
-          >
-            {connectionStatus === 'connected' ? (
-              <>
-                <Wifi size={13} className="animate-pulse" />
-                <span className="hidden sm:inline">Sync Active</span>
-              </>
-            ) : connectionStatus === 'reconnecting' ? (
-              <>
-                <Wifi size={13} className="animate-spin" />
-                <span>Reconnecting...</span>
-              </>
-            ) : (
-              <>
-                <WifiOff size={13} />
-                <span>Offline</span>
-              </>
-            )}
-          </button>
-
-          {/* Dark / Light Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-xl border border-slate-100 dark:border-slate-900 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-950 dark:hover:text-white transition-all shadow-sm"
-            aria-label="Toggle theme mode"
-          >
-            {isDarkMode ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
-        </div>
-      </header>
-      
-      <div className="flex">
-        {/* SIDEBAR NAVIGATION - Visible only on Tablets & Desktops */}
-        <aside className="hidden lg:block fixed top-16 left-0 z-20 w-64 h-[calc(100vh-4rem)] border-r border-slate-100 dark:border-slate-900 bg-white/40 dark:bg-slate-950/40 backdrop-blur-md p-4">
-          <div className="flex flex-col h-full justify-between">
-            <nav className="space-y-1">
-              <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                Workspace
-              </div>
-              {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <button
-                    key={item.name}
-                    onClick={() => navigate(item.path)}
-                    className={`
-                      flex items-center w-full px-4 py-3 text-left rounded-xl font-medium transition-all duration-200 group relative
-                      ${isActive
-                        ? 'bg-gradient-to-r from-teal-500/10 to-indigo-500/5 text-teal-700 dark:text-teal-300 font-semibold border-l-2 border-teal-500 shadow-sm'
-                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/70 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-900/60'}
-                    `}
-                  >
-                    <span className={`mr-3 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                      {item.icon}
-                    </span>
-                    <span className="text-sm">{item.name}</span>
-
-                    {/* Tiny neon glow dots on active sidebar items */}
-                    {isActive && (
-                      <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse-light" />
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Micro-Interaction Tips */}
-            <div className="rounded-2xl p-4 bg-gradient-to-br from-teal-500/5 to-indigo-500/5 border border-teal-500/10">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Sparkles size={14} className="text-teal-500" />
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">AI Care Tip</span>
-              </div>
-              <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 font-medium">
-                Try logging your mood twice a day for deeper insight analytics.
-              </p>
-            </div>
+          <div className="hidden lg:block">
+            {/* Soft path info indicators */}
+            <span className="text-[10px] font-mono tracking-widest text-stone-400 dark:text-zinc-500 uppercase">
+              {location.pathname === '/' ? 'WORKSPACE / OVERVIEW' : `WORKSPACE / ${location.pathname.replace('/', '').toUpperCase()}`}
+            </span>
           </div>
-        </aside>
-        
-        {/* MAIN BODY CONTAINER */}
-        <main className="flex-1 lg:ml-64 p-4 md:p-8 pb-24 lg:pb-10 min-h-[calc(100vh-4rem)]">
-          <div className="max-w-6xl mx-auto animate-fade-in">
+
+          {/* Real-time Collaboration feed, Supabase Wifi toggle, theme toggle */}
+          <div className="flex items-center gap-4">
+
+            {/* Live Peer Activity bubbles */}
+            <div className="hidden md:flex items-center gap-1.5 border-r border-stone-200/50 dark:border-neutral-800 pr-4">
+              <div className="flex -space-x-1 overflow-hidden">
+                {activeMembers.slice(0, 3).map((member) => (
+                  <img
+                    key={member.id}
+                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#0a0a0a] object-cover"
+                    src={member.avatarUrl}
+                    alt={member.name}
+                    title={`${member.name} (${member.role}) is online`}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] text-stone-400 dark:text-zinc-500 font-medium flex items-center gap-1">
+                <Users size={12} /> {activeMembers.length} Active
+              </span>
+            </div>
+
+            {/* Supabase status control trigger button */}
+            <button
+              onClick={handleConnectionToggle}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all duration-300 border
+                ${connectionStatus === 'connected'
+                  ? 'bg-stone-100 text-stone-600 dark:bg-neutral-850 dark:text-zinc-400 border-stone-200/40 dark:border-neutral-800'
+                  : connectionStatus === 'reconnecting'
+                  ? 'bg-amber-500/10 text-amber-600 border-amber-500/20 animate-pulse'
+                  : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                }
+              `}
+              title="PostgreSQL Sync State. Click to toggle state."
+            >
+              {connectionStatus === 'connected' ? (
+                <>
+                  <Wifi size={11} className="text-emerald-500 animate-pulse" />
+                  <span className="hidden sm:inline">Sync Connected</span>
+                </>
+              ) : connectionStatus === 'reconnecting' ? (
+                <>
+                  <Wifi size={11} className="animate-spin text-amber-400" />
+                  <span>Syncing...</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff size={11} className="text-rose-400" />
+                  <span>Offline</span>
+                </>
+              )}
+            </button>
+
+            {/* Dark / Light trigger */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-xl border border-stone-200/40 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-stone-500 dark:text-zinc-300 hover:bg-stone-50 dark:hover:bg-neutral-800 shadow-sm"
+              aria-label="Toggle theme mode"
+            >
+              {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
+          </div>
+        </header>
+
+        {/* MAIN BODY LAYOUT VIEW */}
+        <main className="flex-1 px-6 md:px-10 py-6">
+          <div className="max-w-5xl mx-auto">
             {children}
           </div>
         </main>
       </div>
 
-      {/* BOTTOM MOBILE NAVIGATION BAR - Visible only on Smartphones */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 border-t border-slate-100 dark:border-slate-900/80 backdrop-blur-lg px-4 py-2 shadow-2xl flex justify-around items-center">
+      {/* BOTTOM MOBILE NAVIGATION BAR - Visible on small phone screens */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-neutral-900/95 border-t border-stone-200/40 dark:border-neutral-800/80 backdrop-blur-lg px-4 py-2 flex justify-around items-center shadow-xl">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <button
               key={item.name}
               onClick={() => navigate(item.path)}
-              className="flex flex-col items-center justify-center p-1.5 select-none active:scale-90 transition-transform"
+              className="flex flex-col items-center justify-center p-1.5"
             >
               <div className={`p-1 rounded-xl transition-all
                 ${isActive
-                  ? 'text-teal-600 dark:text-teal-400 bg-teal-500/10'
-                  : 'text-slate-400 dark:text-slate-500'}
+                  ? 'text-stone-900 dark:text-white bg-stone-100 dark:bg-neutral-800'
+                  : 'text-stone-400 dark:text-zinc-500'}
               `}>
                 {item.icon}
               </div>
-              <span className={`text-[9px] font-bold mt-1 tracking-tight transition-colors
-                ${isActive ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 dark:text-slate-500'}
+              <span className={`text-[9px] font-semibold mt-1 tracking-tight
+                ${isActive ? 'text-stone-900 dark:text-white' : 'text-stone-400'}
               `}>
                 {item.name === 'Wellness Tracker' ? 'Tracker' : item.name}
               </span>

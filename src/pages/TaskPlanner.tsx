@@ -14,16 +14,13 @@ const TaskPlanner: React.FC = () => {
   
   // Filter tasks based on search and filters
   const filteredTasks = tasks.filter(task => {
-    // Search term filter
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          (task.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     
-    // Status filter
     const matchesStatus = filterStatus === 'all' || 
                         (filterStatus === 'completed' && task.completed) ||
                         (filterStatus === 'pending' && !task.completed);
     
-    // Priority filter
     const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
     
     return matchesSearch && matchesStatus && matchesPriority;
@@ -31,28 +28,23 @@ const TaskPlanner: React.FC = () => {
   
   // Sort tasks: pending first, then by priority, then by due date
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-    // Completed vs pending
     if (a.completed !== b.completed) {
       return a.completed ? 1 : -1;
     }
     
-    // Sort by priority for pending tasks
     if (!a.completed && !b.completed) {
       const priorityOrder = { high: 0, medium: 1, low: 2 };
       const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
       if (priorityDiff !== 0) return priorityDiff;
       
-      // Then by due date if present
       if (a.dueDate && b.dueDate) {
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
       }
       
-      // If only one has due date, it comes first
       if (a.dueDate) return -1;
       if (b.dueDate) return 1;
     }
     
-    // Default sort by creation date (newest first)
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -62,125 +54,102 @@ const TaskPlanner: React.FC = () => {
   const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in pb-16">
 
-      {/* Header and Summary Cards */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Task Planner</h1>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            Design your day, track achievements, and balance workload parameters
+      {/* Narrative Page Header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <CheckSquare size={14} className="text-stone-400" />
+            <span className="text-[10px] font-mono tracking-widest text-stone-400 dark:text-zinc-500 uppercase">
+              WORK backlog
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-light tracking-tight text-stone-900 dark:text-white font-serif">
+            Tasks & Focus Planner
+          </h1>
+          <p className="text-xs text-stone-400 dark:text-zinc-400 font-light">
+            An uncluttered list layout designed to balance parameters, milestones, and task velocity.
           </p>
         </div>
+
         <button 
           onClick={() => setIsFormOpen(true)}
-          className="btn btn-primary self-start md:self-auto shadow-sm text-xs font-semibold"
+          className="btn-premium btn-premium-primary self-start md:self-auto"
         >
-          <PlusCircle size={15} className="mr-2" />
-          Create Task
+          <PlusCircle size={14} /> Schedule Task
         </button>
       </div>
 
-      {/* Mini Stats Summary Blocks */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="divider-premium" />
 
-        {/* Completed Stats */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed Tasks</p>
-            <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{completedCount}</p>
-          </div>
-          <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
-            <CheckSquare size={18} />
-          </div>
+      {/* Narrative stats text rather than boxes */}
+      <div className="flex flex-wrap gap-10 text-xs font-light text-stone-500 dark:text-zinc-400">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-stone-400 dark:text-zinc-500 font-medium">Progress velocity</p>
+          <p className="text-lg font-semibold text-stone-800 dark:text-zinc-200 mt-0.5">{completionRate}% complete</p>
         </div>
-
-        {/* Pending Stats */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending focus</p>
-            <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{pendingCount}</p>
-          </div>
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-            <ListTodo size={18} />
-          </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-stone-400 dark:text-zinc-500 font-medium">Pending items</p>
+          <p className="text-lg font-semibold text-stone-800 dark:text-zinc-200 mt-0.5">{pendingCount} focus tasks</p>
         </div>
-
-        {/* Progress gauge */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
-          <div className="space-y-1.5 flex-1 pr-4">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completion velocity</p>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{completionRate}%</span>
-              <span className="text-[9px] font-bold text-emerald-500 flex items-center gap-0.5"><ArrowUpRight size={10} /> Active</span>
-            </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden">
-              <div className="bg-teal-500 h-1 rounded-full" style={{ width: `${completionRate}%` }}></div>
-            </div>
-          </div>
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <AlertCircle size={18} />
-          </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-stone-400 dark:text-zinc-500 font-medium">Completed backlog</p>
+          <p className="text-lg font-semibold text-stone-800 dark:text-zinc-200 mt-0.5">{completedCount} resolved</p>
         </div>
-
       </div>
-      
-      {/* Search and Filter Row */}
-      <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col md:flex-row gap-3">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Search size={16} />
-          </div>
+
+      {/* Minimalistic Inline Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between py-2 border-b border-stone-100 dark:border-neutral-800/60">
+        <div className="relative w-full sm:max-w-xs">
+          <Search size={14} className="absolute left-3 top-2.5 text-stone-400" />
           <input
             type="text"
-            placeholder="Search tasks by title, context or keywords..."
+            placeholder="Search keywords..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="input pl-10 w-full text-xs"
+            className="input-premium pl-8 py-1.5 text-xs w-full bg-transparent border-none"
           />
-          {searchTerm && (
-            <button 
-              onClick={() => setSearchTerm('')}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
-              aria-label="Clear search"
-            >
-              <X size={16} />
-            </button>
-          )}
         </div>
-        
-        <div className="flex gap-2">
 
-          {/* Status Filter */}
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value as 'all' | 'completed' | 'pending')}
-            className="select py-1.5 text-xs bg-slate-50 dark:bg-slate-950"
-            aria-label="Filter by Status"
-          >
-            <option value="all">All Statuses</option>
-            <option value="pending">⏳ Pending Focus</option>
-            <option value="completed">✅ Done Tasks</option>
-          </select>
-          
-          {/* Priority Filter */}
-          <select
-            value={filterPriority}
-            onChange={e => setFilterPriority(e.target.value as 'all' | 'high' | 'medium' | 'low')}
-            className="select py-1.5 text-xs bg-slate-50 dark:bg-slate-950"
-            aria-label="Filter by Priority"
-          >
-            <option value="all">All Priorities</option>
-            <option value="high">🔴 High Priority</option>
-            <option value="medium">🟡 Medium Priority</option>
-            <option value="low">🟢 Low Priority</option>
-          </select>
+        <div className="flex gap-2 w-full sm:w-auto">
+          {/* Custom micro selector buttons instead of raw selects */}
+          <div className="flex rounded-lg bg-stone-100/50 dark:bg-neutral-900/40 p-1 border border-stone-200/20">
+            {['all', 'pending', 'completed'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(status as any)}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all
+                  ${filterStatus === status
+                    ? 'bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm'
+                    : 'text-stone-400 hover:text-stone-700'}
+                `}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
 
+          <div className="flex rounded-lg bg-stone-100/50 dark:bg-neutral-900/40 p-1 border border-stone-200/20">
+            {['all', 'high', 'medium'].map((prio) => (
+              <button
+                key={prio}
+                onClick={() => setFilterPriority(prio as any)}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all
+                  ${filterPriority === prio
+                    ? 'bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm'
+                    : 'text-stone-400 hover:text-stone-700'}
+                `}
+              >
+                {prio}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       
-      {/* Task List Grid */}
-      <div className="space-y-3.5 pt-1">
+      {/* Backlog rows */}
+      <div className="space-y-1.5 pt-2">
         {sortedTasks.length > 0 ? (
           sortedTasks.map(task => (
             <TaskPreview key={task.id} task={task} />
@@ -188,25 +157,13 @@ const TaskPlanner: React.FC = () => {
         ) : (
           <EmptyState
             icon={Calendar}
-            title="No tasks matching parameters"
-            description={
-              searchTerm || filterStatus !== 'all' || filterPriority !== 'all'
-                ? 'Try adjusting your search query, clearing filter categories, or reset priority ranges'
-                : 'Start designing your work pipeline by adding high focus tasks'
-            }
-            action={
-              !searchTerm && filterStatus === 'all' && filterPriority === 'all'
-                ? {
-                    label: 'Schedule First Task',
-                    onClick: () => setIsFormOpen(true)
-                  }
-                : undefined
-            }
+            title="All cleared"
+            description="No matching backlog tasks found. Add a new focus priority to begin planning."
           />
         )}
       </div>
       
-      {/* Task Form Modal */}
+      {/* Modal form */}
       {isFormOpen && (
         <TaskForm onClose={() => setIsFormOpen(false)} />
       )}

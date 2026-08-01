@@ -6,160 +6,185 @@
 
 @layer base {
   :root {
-    --radius-premium: 16px;
-    --radius-button: 10px;
-    --radius-inner: 8px;
+    /* Premium design tokens */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+    /* Elegant Color Tokens */
+    --bg-primary: #fcfbf9; /* Warm white / Soft Stone */
+    --bg-secondary: #f4f3ef; /* Warm gray */
+    --text-primary: #1c1b1a; /* Soft charcoal */
+    --text-secondary: #6e6c64; /* Soft slate/stone */
+    --border-subtle: rgba(110, 108, 100, 0.08);
+
+    /* Wellness Accents */
+    --color-green: #3b5249; /* Forest green */
+    --color-teal: #4b6b66; /* Muted teal */
+    --color-indigo: #4a526d; /* Muted slate/indigo */
+
+    --radius-premium: 14px;
+    --radius-button: 8px;
     --transition-premium: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  :root.dark {
+    --bg-primary: #0d0d0d; /* Pitch dark */
+    --bg-secondary: #171717; /* Dark charcoal */
+    --text-primary: #f5f5f4; /* Crisp white */
+    --text-secondary: #a1a1aa; /* Light slate */
+    --border-subtle: rgba(255, 255, 255, 0.05);
+
+    --color-green: #5c7f6f; /* Lighter forest green */
+    --color-teal: #7fa89f; /* Lighter muted teal */
+    --color-indigo: #818cf8; /* Muted slate/indigo */
+  }
+
   html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
   
   body {
-    @apply bg-slate-50 text-slate-800 transition-colors duration-300;
-  }
-
-  body.dark {
-    @apply bg-slate-950 text-slate-100;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.4s var(--transition-premium), color 0.4s var(--transition-premium);
   }
   
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-    @apply font-semibold tracking-tight text-slate-900 dark:text-slate-50;
-  }
-  
-  h1 {
-    @apply text-3xl leading-tight md:text-4xl;
-  }
-  
-  h2 {
-    @apply text-2xl leading-snug md:text-3xl;
-  }
-  
-  h3 {
-    @apply text-xl leading-normal;
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
   }
 }
 
 @layer components {
-  /* Premium Design Buttons */
-  .btn {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    border-radius: var(--radius-button);
+  /* Premium Minimalist UI System */
+
+  /* Buttons - sleek, low border, subtle hover scale */
+  .btn-premium {
+    font-family: var(--font-display);
+    font-weight: 500;
     transition: all 0.2s var(--transition-premium);
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 active:scale-95 select-none;
-  }
-  
-  .btn-primary {
-    @apply bg-teal-600 text-white shadow-sm border border-teal-700/20 hover:bg-teal-500 hover:shadow-md dark:bg-teal-500 dark:hover:bg-teal-400 dark:border-teal-400/20 focus-visible:ring-teal-500;
-  }
-  
-  .btn-secondary {
-    @apply bg-slate-900 text-white shadow-sm border border-slate-800 hover:bg-slate-800 hover:shadow-md dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200 focus-visible:ring-slate-500;
-  }
-  
-  .btn-outline {
-    border-radius: var(--radius-button);
-    @apply border border-slate-200 bg-white/60 text-slate-700 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-slate-100 focus-visible:ring-teal-500;
+    @apply inline-flex items-center justify-center px-4 py-2 text-xs rounded-lg border focus:outline-none focus:ring-1 focus:ring-stone-400 select-none active:scale-95 gap-1.5;
   }
 
-  .btn-ghost {
-    border-radius: var(--radius-button);
-    @apply text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100;
+  .btn-premium-primary {
+    background-color: var(--color-green);
+    color: #ffffff;
+    border-color: transparent;
   }
-  
-  /* Modern Premium Cards */
-  .card {
-    border-radius: var(--radius-premium);
-    transition: all 0.3s var(--transition-premium);
-    @apply border border-slate-100 dark:border-slate-900 bg-white dark:bg-slate-900 p-6 shadow-sm hover:shadow-md hover:border-slate-200/60 dark:hover:border-slate-800/60 backdrop-blur-sm;
+  .btn-premium-primary:hover {
+    opacity: 0.92;
   }
 
-  /* Sleek Form Controls */
-  .input {
-    border-radius: var(--radius-button);
+  .btn-premium-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+  }
+  .btn-premium-secondary:hover {
+    opacity: 0.9;
+  }
+
+  .btn-premium-ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-color: transparent;
+  }
+  .btn-premium-ghost:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+  }
+
+  /* Ultra Clean Form Controls */
+  .input-premium {
+    font-family: var(--font-sans);
     transition: all 0.2s var(--transition-premium);
-    @apply border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-600
-    shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    @apply px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 placeholder-stone-400/60 dark:placeholder-stone-600;
   }
 
-  .select {
-    border-radius: var(--radius-button);
+  /* Textareas */
+  .textarea-premium {
+    font-family: var(--font-sans);
     transition: all 0.2s var(--transition-premium);
-    @apply border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-slate-50
-    shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    @apply px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400 placeholder-stone-400/60 dark:placeholder-stone-600;
   }
 
-  .textarea {
-    border-radius: var(--radius-button);
+  /* Select Inputs */
+  .select-premium {
+    font-family: var(--font-sans);
     transition: all 0.2s var(--transition-premium);
-    @apply border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-600
-    shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400;
-  }
-  
-  /* Modern Minimalist Badges */
-  .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide select-none;
-  }
-  
-  .badge-primary {
-    @apply bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300 border border-teal-200/30 dark:border-teal-900/30;
-  }
-  
-  .badge-secondary {
-    @apply bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border border-indigo-200/30 dark:border-indigo-900/30;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    @apply px-3 py-2 text-sm rounded-lg focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400;
   }
 
-  .badge-success {
-    @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/30 dark:border-emerald-900/30;
-  }
-  
-  .badge-warning {
-    @apply bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/30 dark:border-amber-900/30;
-  }
-  
-  .badge-error {
-    @apply bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200/30 dark:border-rose-900/30;
-  }
-  
-  /* Animations & Visual Delight */
-  .animate-fade-in {
-    @apply animate-[fadeIn_0.4s_cubic-bezier(0.16,1,0.3,1)_both];
-  }
-  
-  .animate-slide-up {
-    @apply animate-[slideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_both];
-  }
-  
-  .animate-pulse-light {
-    @apply animate-[pulse_3s_ease-in-out_infinite];
+  /* Minimal Dividers */
+  .divider-premium {
+    height: 1px;
+    background-color: var(--border-subtle);
+    @apply my-6 w-full;
   }
 
-  .animate-glow {
-    @apply animate-[glow_2s_ease-in-out_infinite];
+  /* Timeline bullets & nodes */
+  .timeline-node {
+    @apply relative pl-8 pb-8 last:pb-0;
+  }
+  .timeline-node::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--border-subtle);
+  }
+  .timeline-node:last-child::before {
+    display: none;
   }
 
+  /* Premium Glass Effect */
   .glass-premium {
-    @apply bg-white/70 dark:bg-slate-900/70 border border-white/20 dark:border-slate-800/20 backdrop-blur-md shadow-lg;
+    background-color: rgba(252, 251, 249, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+  }
+  .dark .glass-premium {
+    background-color: rgba(13, 13, 13, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
   }
 
-  /* Keyframe Animations */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* Keyboard shortcut label */
+  .kdb-premium {
+    @apply inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-800 text-[10px] font-mono font-medium text-stone-500 dark:text-stone-400 border border-stone-200/50 dark:border-zinc-700 select-none;
   }
-  
-  @keyframes slideUp {
-    from { transform: translateY(16px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+}
 
-  @keyframes glow {
-    0%, 100% { box-shadow: 0 0 5px rgba(20, 184, 166, 0.2); }
-    50% { box-shadow: 0 0 20px rgba(20, 184, 166, 0.5); }
+/* Page animation classes */
+.fade-in-slide {
+  animation: fadeInSlide 0.5s var(--transition-premium) both;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
