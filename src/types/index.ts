@@ -74,3 +74,53 @@ export interface ChartData {
     borderWidth?: number;
   }[];
 }
+
+// PREMIUM REDESIGN NEW TYPES
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: 'Intern' | 'Supervisor' | 'Mentor';
+  avatarUrl: string;
+  status: 'online' | 'offline' | 'away' | 'busy';
+  lastActive?: string;
+  currentActivity?: string;
+}
+
+export interface ActivityEvent {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  type: 'mood' | 'task_complete' | 'health_log' | 'achievement';
+  detail: string;
+  timestamp: string;
+}
+
+export interface Announcement {
+  id: string;
+  author: string;
+  authorRole: string;
+  authorAvatar: string;
+  title: string;
+  content: string;
+  date: string;
+  pinned: boolean;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  unlockedAt?: string;
+  iconName: 'streak' | 'sleep' | 'water' | 'task' | 'mood';
+  target: number;
+  progress: number;
+}
+
+export interface DepartmentStats {
+  name: string;
+  avgMood: number;
+  taskCompletion: number;
+  stressLevel: number;
+}

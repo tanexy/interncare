@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { PlusCircle, Search, Filter, X, Calendar } from 'lucide-react';
+import { PlusCircle, Search, Filter, X, Calendar, CheckSquare, ListTodo, AlertCircle, ArrowUpRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import TaskPreview from '../components/tasks/TaskPreview';
 import TaskForm from '../components/tasks/TaskForm';
+import { EmptyState } from '../components/ui/EmptyState';
 
 const TaskPlanner: React.FC = () => {
   const { tasks } = useApp();
@@ -54,96 +55,154 @@ const TaskPlanner: React.FC = () => {
     // Default sort by creation date (newest first)
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+
+  const totalCount = tasks.length;
+  const completedCount = tasks.filter(t => t.completed).length;
+  const pendingCount = totalCount - completedCount;
+  const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   
   return (
-    <div className="animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div className="space-y-6">
+
+      {/* Header and Summary Cards */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-400">Task Planner</h1>
-          <p className="text-gray-900 dark:text-gray-400">
-            Manage your tasks and keep track of your progress
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Task Planner</h1>
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
+            Design your day, track achievements, and balance workload parameters
           </p>
         </div>
         <button 
           onClick={() => setIsFormOpen(true)}
-          className="btn btn-primary"
+          className="btn btn-primary self-start md:self-auto shadow-sm text-xs font-semibold"
         >
-          <PlusCircle size={18} className="mr-2" />
-          New Task
+          <PlusCircle size={15} className="mr-2" />
+          Create Task
         </button>
       </div>
+
+      {/* Mini Stats Summary Blocks */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        {/* Completed Stats */}
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed Tasks</p>
+            <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{completedCount}</p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+            <CheckSquare size={18} />
+          </div>
+        </div>
+
+        {/* Pending Stats */}
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending focus</p>
+            <p className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{pendingCount}</p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <ListTodo size={18} />
+          </div>
+        </div>
+
+        {/* Progress gauge */}
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
+          <div className="space-y-1.5 flex-1 pr-4">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completion velocity</p>
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{completionRate}%</span>
+              <span className="text-[9px] font-bold text-emerald-500 flex items-center gap-0.5"><ArrowUpRight size={10} /> Active</span>
+            </div>
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden">
+              <div className="bg-teal-500 h-1 rounded-full" style={{ width: `${completionRate}%` }}></div>
+            </div>
+          </div>
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <AlertCircle size={18} />
+          </div>
+        </div>
+
+      </div>
       
-      {/* Search and filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      {/* Search and Filter Row */}
+      <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col md:flex-row gap-3">
         <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={18} className="text-gray-400" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <Search size={16} />
           </div>
           <input
             type="text"
-            placeholder="Search tasks..."
+            placeholder="Search tasks by title, context or keywords..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="input pl-10 w-full"
+            className="input pl-10 w-full text-xs"
           />
           {searchTerm && (
             <button 
               onClick={() => setSearchTerm('')}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+              aria-label="Clear search"
             >
-              <X size={18} className="text-gray-400 hover:text-gray-600" />
+              <X size={16} />
             </button>
           )}
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-2">
+
+          {/* Status Filter */}
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value as 'all' | 'completed' | 'pending')}
-            className="select"
+            className="select py-1.5 text-xs bg-slate-50 dark:bg-slate-950"
+            aria-label="Filter by Status"
           >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
+            <option value="all">All Statuses</option>
+            <option value="pending">⏳ Pending Focus</option>
+            <option value="completed">✅ Done Tasks</option>
           </select>
           
+          {/* Priority Filter */}
           <select
             value={filterPriority}
             onChange={e => setFilterPriority(e.target.value as 'all' | 'high' | 'medium' | 'low')}
-            className="select"
+            className="select py-1.5 text-xs bg-slate-50 dark:bg-slate-950"
+            aria-label="Filter by Priority"
           >
-            <option value="all">All Priority</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="all">All Priorities</option>
+            <option value="high">🔴 High Priority</option>
+            <option value="medium">🟡 Medium Priority</option>
+            <option value="low">🟢 Low Priority</option>
           </select>
+
         </div>
       </div>
       
-      {/* Task List */}
-      <div className="space-y-4">
+      {/* Task List Grid */}
+      <div className="space-y-3.5 pt-1">
         {sortedTasks.length > 0 ? (
           sortedTasks.map(task => (
             <TaskPreview key={task.id} task={task} />
           ))
         ) : (
-          <div className="py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-            <Calendar size={48} className="mx-auto text-gray-400 mb-3" />
-            <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300">No tasks found</h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              {searchTerm || filterStatus !== 'all' || filterPriority !== 'all'
-                ? 'Try adjusting your search or filters'
-                : 'Start by creating your first task'}
-            </p>
-            {!searchTerm && filterStatus === 'all' && filterPriority === 'all' && (
-              <button 
-                onClick={() => setIsFormOpen(true)}
-                className="mt-4 btn btn-primary"
-              >
-                Create Task
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={Calendar}
+            title="No tasks matching parameters"
+            description={
+              searchTerm || filterStatus !== 'all' || filterPriority !== 'all'
+                ? 'Try adjusting your search query, clearing filter categories, or reset priority ranges'
+                : 'Start designing your work pipeline by adding high focus tasks'
+            }
+            action={
+              !searchTerm && filterStatus === 'all' && filterPriority === 'all'
+                ? {
+                    label: 'Schedule First Task',
+                    onClick: () => setIsFormOpen(true)
+                  }
+                : undefined
+            }
+          />
         )}
       </div>
       
