@@ -5,7 +5,8 @@ import HealthForm from '../components/health/HealthForm';
 import MoodSummary from '../components/mood/MoodSummary';
 import HealthSummary from '../components/health/HealthSummary';
 import { format, parseISO, isToday, isYesterday, isThisWeek } from 'date-fns';
-import { Calendar, Activity } from 'lucide-react';
+import { Calendar, Activity, Sparkles, SmilePlus, Heart, BarChart } from 'lucide-react';
+import { EmptyState } from '../components/ui/EmptyState';
 
 const MoodTracker: React.FC = () => {
   const { moodEntries, healthData } = useApp();
@@ -51,66 +52,68 @@ const MoodTracker: React.FC = () => {
   };
   
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="space-y-6">
+
+      {/* Dynamic Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Wellness Tracker</h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Track your mood and health metrics
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Wellness Journal</h1>
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
+            Keep tabs on mental focus, physical energy parameters, and stress loads
           </p>
         </div>
         <div className="flex gap-2">
           <button 
             onClick={() => setShowMoodForm(true)}
-            className={`btn ${activeTab === 'mood' ? 'btn-primary' : 'btn-outline'}`}
+            className="btn btn-primary text-xs font-semibold"
           >
-            Log Mood
+            Log Mind State
           </button>
           <button 
             onClick={() => setShowHealthForm(true)}
-            className={`btn ${activeTab === 'health' ? 'btn-primary' : 'btn-outline'}`}
+            className="btn btn-secondary text-xs font-semibold"
           >
-            Log Health
+            Log Health Data
           </button>
         </div>
       </div>
       
-      {/* Tab navigation */}
-      <div className="border-b dark:border-gray-700">
-        <div className="flex space-x-8">
+      {/* Symmetrical tab navigation bar */}
+      <div className="border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex space-x-6">
           <button
             onClick={() => setActiveTab('mood')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 px-1 border-b-2 font-bold text-xs uppercase tracking-wider transition-all duration-200 ${
               activeTab === 'mood'
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700'
             }`}
           >
-            Mood Journal
+            🧠 Mindfulness Journal
           </button>
           <button
             onClick={() => setActiveTab('health')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 px-1 border-b-2 font-bold text-xs uppercase tracking-wider transition-all duration-200 ${
               activeTab === 'health'
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700'
             }`}
           >
-            Health Metrics
+            🛌 Physical Health Metrics
           </button>
         </div>
       </div>
       
-      {/* Mood tab content */}
+      {/* Mood Tab Timeline */}
       {activeTab === 'mood' && (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-fade-in">
           {moodDates.length > 0 ? (
             moodDates.map(date => (
-              <div key={date} className="space-y-3">
-                <h3 className="font-medium text-gray-700 dark:text-gray-300">
+              <div key={date} className="space-y-3.5">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">
                   {formatDateHeading(date)}
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {groupedMoodEntries[date]
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                     .map(entry => (
@@ -120,33 +123,29 @@ const MoodTracker: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <Calendar size={48} className="mx-auto text-gray-400 mb-3" />
-              <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300">No mood entries yet</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Start tracking your mood to get personalized insights
-              </p>
-              <button 
-                onClick={() => setShowMoodForm(true)}
-                className="mt-4 btn btn-primary"
-              >
-                Log Your Mood
-              </button>
-            </div>
+            <EmptyState
+              icon={SmilePlus}
+              title="Your mindfulness journal is pristine"
+              description="Start tracking your emotional parameters to receive highly optimized AI recommendations and unlock stats milestones."
+              action={{
+                label: 'Log Your Mood State',
+                onClick: () => setShowMoodForm(true)
+              }}
+            />
           )}
         </div>
       )}
       
-      {/* Health tab content */}
+      {/* Health Tab Timeline */}
       {activeTab === 'health' && (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-fade-in">
           {healthDates.length > 0 ? (
             healthDates.map(date => (
-              <div key={date} className="space-y-3">
-                <h3 className="font-medium text-gray-700 dark:text-gray-300">
+              <div key={date} className="space-y-3.5">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">
                   {formatDateHeading(date)}
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {groupedHealthData[date]
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                     .map(data => (
@@ -156,19 +155,15 @@ const MoodTracker: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <Activity size={48} className="mx-auto text-gray-400 mb-3" />
-              <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300">No health data yet</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Start tracking your health metrics to get personalized insights
-              </p>
-              <button 
-                onClick={() => setShowHealthForm(true)}
-                className="mt-4 btn btn-primary"
-              >
-                Log Health Data
-              </button>
-            </div>
+            <EmptyState
+              icon={Activity}
+              title="No logged physical health metrics"
+              description="Record your sleep hours, water intake, stress, and workouts daily to gain absolute clarity into your wellbeing correlations."
+              action={{
+                label: 'Record Health Stats',
+                onClick: () => setShowHealthForm(true)
+              }}
+            />
           )}
         </div>
       )}
